@@ -1,5 +1,8 @@
 # Getting Started
 
+Profile -> Settings -> Generate Personal Token (Used instead of git password)
+Disable flyway in maven pom.xml while working on H2DB
+
 ### Reference Documentation
 For further reference, please consider the following sections:
 
