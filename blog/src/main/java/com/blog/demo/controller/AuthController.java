@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blog.demo.dto.RegisterRequest;
+import com.blog.demo.exception.BadNewUserRequestException;
 import com.blog.demo.service.AuthService;
 
 @RestController
@@ -19,7 +20,7 @@ public class AuthController {
 	private AuthService authService;
 	
 	@PostMapping("/signup")
-	public ResponseEntity<Long> signup(@RequestBody RegisterRequest request){
+	public ResponseEntity<Long> signup(@RequestBody RegisterRequest request) throws BadNewUserRequestException{
 		Long newId = authService.signup(request);
 		return ResponseEntity.status(HttpStatus.OK).body(newId);
 	}
