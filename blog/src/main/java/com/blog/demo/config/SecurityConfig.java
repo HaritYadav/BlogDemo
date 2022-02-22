@@ -12,13 +12,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	
 	@Override
 	public void configure(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.csrf().disable() //disable 'csrf'
-			.authorizeRequests() //allow requests per below conditions
-			// requests starting with '/api/auth'
-			// permit everyone to send requests
-			// allow all requests
-			// the sender must be authenticated user
-			.antMatchers("/api/auth/**").permitAll().anyRequest().authenticated();
+//		httpSecurity.csrf().disable() //disable 'csrf'
+//			.authorizeRequests() //allow requests per below conditions
+//			// requests starting with '/api/auth'
+//			// permit everyone to send requests
+//			// allow all requests
+//			// the sender must be authenticated user
+//			.antMatchers("/api/auth/**").permitAll().anyRequest().authenticated();
+		
+		httpSecurity.authorizeRequests().antMatchers("/").permitAll().and()
+        .authorizeRequests().antMatchers("/console/**").permitAll();
+		httpSecurity.csrf().disable();
+		httpSecurity.headers().frameOptions().disable();
 	}
 	
 	@Bean
