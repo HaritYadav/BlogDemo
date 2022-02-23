@@ -14,6 +14,7 @@ import com.blog.demo.dto.RegisterRequest;
 import com.blog.demo.exception.BadNewUserRequestException;
 import com.blog.demo.model.User;
 import com.blog.demo.repository.UserRepository;
+import com.blog.demo.security.JwtProvider;
 
 @Service
 public class AuthService {
@@ -26,6 +27,9 @@ public class AuthService {
 	
 	@Autowired
 	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private JwtProvider jwtProvider;
 	
 	public Long signup(RegisterRequest newUserRequest) throws BadNewUserRequestException {
 		
@@ -51,7 +55,7 @@ public class AuthService {
 		Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
 				request.getUsername(), request.getPassword()));
 		SecurityContextHolder.getContext().setAuthentication(authenticate);
-		return "Success";
+		return jwtProvider.generateToken(authenticate);
 	}
 	
 	private String encodePassword(String password) {
