@@ -29,5 +29,22 @@ public class JwtProvider {
 				.signWith(key)
 				.compact();
 	}
+
+	public boolean validateToken(String jwt) {
+		// TODO Auto-generated method stub
+		Jwts.parser().setSigningKey(key).parseClaimsJws(jwt);
+		return true;
+		
+	}
+
+	public String getUsernameFromJWT(String jwt) {
+		// TODO Auto-generated method stub
+		return Jwts.parser()
+				.setSigningKey(key)
+				.parseClaimsJws(jwt)
+				.getBody()
+				.getSubject();
+		
+	}
 	
 }

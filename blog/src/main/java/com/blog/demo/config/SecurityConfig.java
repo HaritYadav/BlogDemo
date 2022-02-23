@@ -12,6 +12,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+
+import com.blog.demo.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -25,6 +29,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
+	
+	@Bean
+	public JwtAuthenticationFilter jwtAuthenticationFilter() {
+		return new JwtAuthenticationFilter();
+	}
+	
+	@Bean
+	public FilterExceptionHandler filterExceptionHandler() {
+		return new FilterExceptionHandler();
+	}
+	
 	@Override
 	public void configure(HttpSecurity httpSecurity) throws Exception {
 //		httpSecurity.csrf().disable() //disable 'csrf'
@@ -39,6 +54,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         .authorizeRequests().antMatchers("/console/**").permitAll();
 		httpSecurity.csrf().disable();
 		httpSecurity.headers().frameOptions().disable();
+		
+		httpSecurity.addFilterBefore(filterExceptionHandler(), WebAsyncManagerIntegrationFilter.class);
+		httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 	
 	// https://stackoverflow.com/questions/70581530/error-creating-bean-with-name-securityconfig-requested-bean-is-currently-in-c/71224432#71224432
