@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		
-		System.out.println("OncePerRequestFilter");
+//		System.out.println("OncePerRequestFilter");
 		String jwt = getJwtFromRequest(request);
 				
 		if(StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
