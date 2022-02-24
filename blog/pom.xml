@@ -40,6 +40,7 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
+			<version>5.2.4</version>
 		</dependency>
 
 		<dependency>
@@ -101,6 +102,7 @@
 			<plugin>
 			    <groupId>org.flywaydb</groupId>
 			    <artifactId>flyway-maven-plugin</artifactId>
+				<version>5.2.4</version>
 			    <configuration>
 				    <baselineOnMigrate>true</baselineOnMigrate>
 				</configuration>
