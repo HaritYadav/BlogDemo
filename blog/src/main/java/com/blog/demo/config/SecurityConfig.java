@@ -3,6 +3,7 @@ package com.blog.demo.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -19,54 +20,105 @@ import com.blog.demo.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter{
+//https://stackoverflow.com/questions/67086865/spring-boot-with-mulitple-authentication-profiles?noredirect=1&lq=1
+public class SecurityConfig {
 	
-	@Autowired
-	private UserDetailsService userDetailsService;
-	
-	@Bean(BeanIds.AUTHENTICATION_MANAGER)
-	@Override
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean();
-	}
-	
-	@Bean
-	public JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter();
-	}
-	
-	@Bean
-	public FilterExceptionHandler filterExceptionHandler() {
-		return new FilterExceptionHandler();
-	}
-	
-	@Override
-	public void configure(HttpSecurity httpSecurity) throws Exception {
-//		httpSecurity.csrf().disable() //disable 'csrf'
-//			.authorizeRequests() //allow requests per below conditions
-//			// requests starting with '/api/auth'
-//			// permit everyone to send requests
-//			// allow all requests
-//			// the sender must be authenticated user
-//			.antMatchers("/api/auth/**").permitAll().anyRequest().authenticated();
+	@Configuration
+    @Profile({"test"})
+	public class TestSecurityConfig extends WebSecurityConfigurerAdapter{
 		
-		httpSecurity.authorizeRequests().antMatchers("/").permitAll().and()
-        .authorizeRequests().antMatchers("/console/**").permitAll();
-		httpSecurity.csrf().disable();
-		httpSecurity.headers().frameOptions().disable();
+		@Autowired
+		private UserDetailsService userDetailsService;
 		
-		httpSecurity.addFilterBefore(filterExceptionHandler(), WebAsyncManagerIntegrationFilter.class);
-		httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+		@Bean(BeanIds.AUTHENTICATION_MANAGER)
+		@Override
+		public AuthenticationManager authenticationManagerBean() throws Exception {
+			return super.authenticationManagerBean();
+		}
+		
+		@Bean
+		public JwtAuthenticationFilter jwtAuthenticationFilter() {
+			return new JwtAuthenticationFilter();
+		}
+		
+		@Bean
+		public FilterExceptionHandler filterExceptionHandler() {
+			return new FilterExceptionHandler();
+		}
+		
+		@Override
+		public void configure(HttpSecurity httpSecurity) throws Exception {
+			httpSecurity.csrf().disable() //disable 'csrf'
+				.authorizeRequests() //allow requests per below conditions
+				// requests starting with '/api/auth'
+				// permit everyone to send requests
+				// allow all requests
+				.antMatchers("/api/auth/**").permitAll()
+				.antMatchers("/api/posts/**").permitAll()
+				// the sender must be authenticated user
+				.anyRequest().authenticated();
+			
+			httpSecurity.addFilterBefore(filterExceptionHandler(), WebAsyncManagerIntegrationFilter.class);
+			httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+		}
+		
+		// https://stackoverflow.com/questions/70581530/error-creating-bean-with-name-securityconfig-requested-bean-is-currently-in-c/71224432#71224432
+		public void configureGlobal(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+			authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(encoder());
+		}
+		
+		@Bean
+		PasswordEncoder encoder() {
+			return new BCryptPasswordEncoder();
+		}
+		
 	}
 	
-	// https://stackoverflow.com/questions/70581530/error-creating-bean-with-name-securityconfig-requested-bean-is-currently-in-c/71224432#71224432
-	public void configureGlobal(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-		authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(encoder());
+	@Configuration
+    @Profile({"dev"})
+	public class DevSecurityConfig extends WebSecurityConfigurerAdapter{
+		
+		@Autowired
+		private UserDetailsService userDetailsService;
+		
+		@Bean(BeanIds.AUTHENTICATION_MANAGER)
+		@Override
+		public AuthenticationManager authenticationManagerBean() throws Exception {
+			return super.authenticationManagerBean();
+		}
+		
+		@Bean
+		public JwtAuthenticationFilter jwtAuthenticationFilter() {
+			return new JwtAuthenticationFilter();
+		}
+		
+		@Bean
+		public FilterExceptionHandler filterExceptionHandler() {
+			return new FilterExceptionHandler();
+		}
+		
+		@Override
+		public void configure(HttpSecurity httpSecurity) throws Exception {
+			
+			httpSecurity.authorizeRequests().antMatchers("/").permitAll().and()
+	        .authorizeRequests().antMatchers("/console/**").permitAll();
+			httpSecurity.csrf().disable();
+			httpSecurity.headers().frameOptions().disable();
+			
+			httpSecurity.addFilterBefore(filterExceptionHandler(), WebAsyncManagerIntegrationFilter.class);
+			httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+		}
+		
+		// https://stackoverflow.com/questions/70581530/error-creating-bean-with-name-securityconfig-requested-bean-is-currently-in-c/71224432#71224432
+		public void configureGlobal(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+			authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(encoder());
+		}
+		
+		@Bean
+		PasswordEncoder encoder() {
+			return new BCryptPasswordEncoder();
+		}
+		
 	}
-	
-	@Bean
-	PasswordEncoder encoder() {
-		return new BCryptPasswordEncoder();
-	}
-	
+
 }
